@@ -87,7 +87,7 @@ Select a quick question below or type your own query.`
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Sparkles size={18} color="var(--teal-primary)" />
             <span style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--navy)' }}>
-              Clinical AI Assistant (Gemini 2.5 Flash Grounded)
+              Clinical AI Assistant (Gemini Flash Grounded)
             </span>
           </div>
 

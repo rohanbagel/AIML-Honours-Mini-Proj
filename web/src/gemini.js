@@ -74,36 +74,45 @@ GUIDELINES:
     parts: [{ text: prompt }]
   });
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+  const candidateModels = ['gemini-3.5-flash-lite', 'gemini-3.8-flash', 'gemini-flash-latest'];
+  let lastError = null;
 
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      contents,
-      systemInstruction,
-      generationConfig: {
-        temperature: 0.3,
-        maxOutputTokens: 1024
+  for (const model of candidateModels) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents,
+          systemInstruction,
+          generationConfig: {
+            temperature: 0.3,
+            maxOutputTokens: 1024
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        lastError = new Error(errData?.error?.message || `HTTP ${response.status}: ${response.statusText}`);
+        continue; // Try next fallback model
       }
-    })
-  });
 
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    const message = errData?.error?.message || `HTTP ${response.status}: ${response.statusText}`;
-    throw new Error(`Gemini API Error: ${message}`);
+      const data = await response.json();
+      const candidate = data?.candidates?.[0];
+      const responseText = candidate?.content?.parts?.[0]?.text;
+
+      if (responseText) {
+        return responseText;
+      }
+    } catch (err) {
+      lastError = err;
+    }
   }
 
-  const data = await response.json();
-  const candidate = data?.candidates?.[0];
-  const responseText = candidate?.content?.parts?.[0]?.text;
-
-  if (!responseText) {
-    throw new Error('No response returned from the Gemini model.');
-  }
-
-  return responseText;
+  throw lastError || new Error('Failed to generate response from Gemini clinical model.');
 }
