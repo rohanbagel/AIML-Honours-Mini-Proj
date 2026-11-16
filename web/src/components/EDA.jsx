@@ -74,7 +74,7 @@ export default function EDA({ results }) {
               />
               <Tooltip 
                 formatter={(val, name, item) => [`${val}% readmission rate (${item.payload.n.toLocaleString()} patients)`, '30-Day Readmission']}
-                contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '12px' }}
+                contentStyle={{ backgroundColor: '#0F172A', color: '#FFFFFF', borderRadius: '8px', border: 'none', fontSize: '12px' }}
               />
               <Bar dataKey="positive_rate" radius={[6, 6, 0, 0]} fill="var(--teal-primary)">
                 {currentData.map((entry, index) => (

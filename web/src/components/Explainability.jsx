@@ -89,7 +89,7 @@ export default function Explainability({ results }) {
                 <YAxis dataKey="feature" type="category" width={140} tick={{ fontSize: 10, fill: '#0F172A' }} />
                 <Tooltip 
                   formatter={(val, name, item) => [`Coefficient: +${val.toFixed(3)} (OR: ${item.payload.oddsRatio}x)`, 'Risk Impact']}
-                  contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '11px' }}
+                  contentStyle={{ backgroundColor: '#0F172A', color: '#FFFFFF', borderRadius: '8px', border: 'none', fontSize: '11px' }}
                 />
                 <Bar dataKey="coefficient" fill="#E11D48" radius={[0, 4, 4, 0]} />
               </BarChart>
@@ -141,7 +141,7 @@ export default function Explainability({ results }) {
                 <YAxis dataKey="feature" type="category" width={140} tick={{ fontSize: 10, fill: '#0F172A' }} />
                 <Tooltip 
                   formatter={(val, name, item) => [`Coefficient: ${val.toFixed(3)} (OR: ${item.payload.oddsRatio}x)`, 'Protective Impact']}
-                  contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '11px' }}
+                  contentStyle={{ backgroundColor: '#0F172A', color: '#FFFFFF', borderRadius: '8px', border: 'none', fontSize: '11px' }}
                 />
                 <Bar dataKey="coefficient" fill="#02C39A" radius={[4, 0, 0, 4]} />
               </BarChart>

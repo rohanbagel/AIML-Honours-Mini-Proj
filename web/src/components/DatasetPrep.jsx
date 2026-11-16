@@ -1,11 +1,13 @@
-import React from 'react';
-import { Database, Filter, Layers, ListFilter, CheckCircle2, AlertCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Database, Filter, Layers, ListFilter, CheckCircle2, Search, Activity } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 export default function DatasetPrep({ results }) {
-  const meta = results.meta;
-  const classBal = results.class_balance;
-  const summary = results.summary_stats;
+  const meta = results.meta || {};
+  const classBal = results.class_balance || {};
+  const summary = results.summary_stats || {};
+
+  const [searchQuery, setSearchQuery] = useState('');
 
   const classData = [
     { name: 'No / >30d Readmission', count: classBal.neg, pct: classBal.neg_pct, color: '#028090' },
@@ -24,6 +26,12 @@ export default function DatasetPrep({ results }) {
     { chapter: 'Other / Missing', range: 'All other codes', desc: 'Metabolic, skin, nervous system, and unclassified conditions' }
   ];
 
+  const filteredCategories = icd9Categories.filter(item => 
+    item.chapter.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.range.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.desc.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div>
       {/* Exclusion Cascade Card */}
@@ -38,39 +46,39 @@ export default function DatasetPrep({ results }) {
               UCI 130-US Hospitals (1999–2008) Inpatient Registry | Rigorous Exclusion Cascade
             </p>
           </div>
-          <span className="badge badge-teal">N = {meta.n_cohort_patients.toLocaleString()} Patients</span>
+          <span className="badge badge-teal">N = {meta.n_cohort_patients?.toLocaleString()} Patients</span>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem', marginBottom: '1.25rem' }}>
-          <div style={{ padding: '1rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', borderTop: '3px solid var(--navy)' }}>
+          <div style={{ padding: '1.15rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', borderTop: '3px solid var(--navy)' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Step 1: Multi-Hospital Ingest</div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--navy)', margin: '0.2rem 0' }}>101,766 Encounters</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--navy)', margin: '0.2rem 0' }}>101,766 Encounters</div>
             <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
               All diabetic inpatient encounters from 130 US hospitals spanning a 10-year period (50 raw features).
             </p>
           </div>
 
-          <div style={{ padding: '1rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', borderTop: '3px solid #E11D48' }}>
+          <div style={{ padding: '1.15rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', borderTop: '3px solid #E11D48' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Step 2: Hospice / Expired Filter</div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: '#E11D48', margin: '0.2rem 0' }}>-2,423 Excluded</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#E11D48', margin: '0.2rem 0' }}>-2,423 Excluded</div>
             <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
               Excluded discharge disposition IDs 11, 13, 14, 19, 20, 21 (expired or hospice). A deceased patient cannot logically experience a 30-day readmission.
             </p>
           </div>
 
-          <div style={{ padding: '1rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', borderTop: '3px solid var(--teal-primary)' }}>
+          <div style={{ padding: '1.15rem', backgroundColor: 'var(--bg-subtle)', borderRadius: 'var(--radius-sm)', borderTop: '3px solid var(--teal-primary)' }}>
             <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Step 3: Initial Encounter Cohort</div>
-            <div style={{ fontSize: '1.4rem', fontWeight: 800, color: 'var(--teal-primary)', margin: '0.2rem 0' }}>69,990 Unique Patients</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--teal-primary)', margin: '0.2rem 0' }}>69,990 Unique Patients</div>
             <p style={{ fontSize: '0.775rem', color: 'var(--text-secondary)' }}>
               Deduplicated to the first admission per patient ID, preventing longitudinal survival bias while capturing true baseline risk.
             </p>
           </div>
         </div>
 
-        <div style={{ padding: '0.85rem', backgroundColor: 'rgba(2, 195, 154, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(2, 195, 154, 0.3)', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+        <div style={{ padding: '0.85rem 1rem', backgroundColor: 'rgba(2, 195, 154, 0.1)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(2, 195, 154, 0.3)', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
           <CheckCircle2 size={18} color="#007A5E" />
           <p style={{ fontSize: '0.8rem', color: '#005944' }}>
-            <strong>Academic Integrity Standard:</strong> Unlike toy datasets (e.g. 768-row Pima), this 69,990-patient clinical cohort mirrors the scale and diagnostic diversity of contemporary hospital epidemiology.
+            <strong>Academic Scale Standard:</strong> Unlike toy datasets (e.g. 768-row Pima), this 69,990-patient clinical cohort mirrors the scale and diagnostic diversity of contemporary hospital epidemiology.
           </p>
         </div>
       </div>
@@ -97,7 +105,7 @@ export default function DatasetPrep({ results }) {
                 <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
                 <Tooltip 
                   formatter={(val, name, item) => [`${val.toLocaleString()} patients (${item.payload.pct}%)`, 'Volume']}
-                  contentStyle={{ backgroundColor: '#FFFFFF', borderRadius: '8px', border: '1px solid #E2E8F0', fontSize: '12px' }}
+                  contentStyle={{ backgroundColor: '#0F172A', color: '#FFFFFF', borderRadius: '8px', border: 'none', fontSize: '12px' }}
                 />
                 <Bar dataKey="count" radius={[6, 6, 0, 0]}>
                   {classData.map((entry, index) => (
@@ -111,19 +119,23 @@ export default function DatasetPrep({ results }) {
           <div style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'space-around', textAlign: 'center', fontSize: '0.825rem' }}>
             <div>
               <div style={{ color: 'var(--text-muted)' }}>Non-Readmitted / &gt;30d</div>
-              <div style={{ fontWeight: 800, color: 'var(--teal-primary)', fontSize: '1.1rem' }}>{classBal.neg.toLocaleString()} ({classBal.neg_pct}%)</div>
+              <div style={{ fontWeight: 800, color: 'var(--teal-primary)', fontSize: '1.15rem' }}>
+                {classBal.neg?.toLocaleString()} ({classBal.neg_pct}%)
+              </div>
             </div>
             <div>
               <div style={{ color: 'var(--text-muted)' }}>Acute 30-Day Readmission</div>
-              <div style={{ fontWeight: 800, color: '#E11D48', fontSize: '1.1rem' }}>{classBal.pos.toLocaleString()} ({classBal.pos_pct}%)</div>
+              <div style={{ fontWeight: 800, color: '#E11D48', fontSize: '1.15rem' }}>
+                {classBal.pos?.toLocaleString()} ({classBal.pos_pct}%)
+              </div>
             </div>
           </div>
           <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.75rem', textAlign: 'center' }}>
-            Managed via stratified 5-fold cross-validation and <code>class_weight='balanced'</code> in both Logistic Regression and LightGBM.
+            Handled via stratified 5-fold cross-validation and <code>class_weight='balanced'</code> cost-sensitive learning.
           </p>
         </div>
 
-        {/* ICD-9 Diagnostic Mapping Card */}
+        {/* ICD-9 Diagnostic Mapping Card with Search */}
         <div className="card">
           <div className="card-header">
             <div>
@@ -133,7 +145,17 @@ export default function DatasetPrep({ results }) {
               </h3>
               <p className="card-subtitle">Mapping 700+ raw ICD-9 billing codes to 10 clinical domains</p>
             </div>
-            <span className="badge badge-navy">WHO ICD-9</span>
+            <div style={{ position: 'relative', width: '160px' }}>
+              <Search size={13} style={{ position: 'absolute', left: '8px', top: '9px', color: 'var(--text-muted)' }} />
+              <input
+                type="text"
+                placeholder="Filter chapters..."
+                className="form-input"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{ paddingLeft: '26px', fontSize: '0.75rem', padding: '0.35rem 0.5rem 0.35rem 26px' }}
+              />
+            </div>
           </div>
 
           <div className="table-wrap" style={{ maxHeight: '280px', overflowY: 'auto' }}>
@@ -146,13 +168,20 @@ export default function DatasetPrep({ results }) {
                 </tr>
               </thead>
               <tbody>
-                {icd9Categories.map((item, idx) => (
+                {filteredCategories.map((item, idx) => (
                   <tr key={idx}>
                     <td style={{ fontWeight: 700, color: 'var(--navy)' }}>{item.chapter}</td>
                     <td className="font-mono" style={{ fontSize: '0.75rem' }}>{item.range}</td>
                     <td style={{ fontSize: '0.75rem' }}>{item.desc}</td>
                   </tr>
                 ))}
+                {filteredCategories.length === 0 && (
+                  <tr>
+                    <td colSpan={3} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '1.5rem' }}>
+                      No diagnostic chapters matching "{searchQuery}"
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
