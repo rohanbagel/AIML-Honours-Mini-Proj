@@ -3,8 +3,8 @@ import { Award, CheckCircle2, FileBarChart, Layers, ShieldCheck, Target, Zap } f
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from 'recharts';
 
 export default function Results({ results }) {
-  const models = results.models;
-  const bestModel = results.best_model;
+  const models = results.models || [];
+  const bestModel = models.find(m => m.name === results.best_model) || models[0] || {};
 
   // Prepare combined ROC data points (downsampled to 30 points for smooth rendering)
   const rocPoints = [];

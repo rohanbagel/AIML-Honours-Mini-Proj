@@ -2,9 +2,9 @@ import React from 'react';
 import { Activity, AlertTriangle, FileText, HeartPulse, Hospital, ShieldCheck, TrendingUp, Users } from 'lucide-react';
 
 export default function Overview({ results, onNavigateTab }) {
-  const meta = results.meta;
-  const classBal = results.class_balance;
-  const bestModel = results.best_model;
+  const meta = results.meta || {};
+  const classBal = results.class_balance || {};
+  const bestModel = results.models?.find(m => m.name === results.best_model) || results.models?.[0] || {};
 
   return (
     <div>

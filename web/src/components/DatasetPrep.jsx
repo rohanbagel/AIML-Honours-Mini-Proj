@@ -180,9 +180,7 @@ export default function DatasetPrep({ results }) {
                 <th>Mean</th>
                 <th>Std Dev</th>
                 <th>Min</th>
-                <th>25%</th>
                 <th>Median</th>
-                <th>75%</th>
                 <th>Max</th>
               </tr>
             </thead>
@@ -190,13 +188,11 @@ export default function DatasetPrep({ results }) {
               {Object.entries(summary).map(([featName, stat]) => (
                 <tr key={featName}>
                   <td style={{ fontWeight: 600, color: 'var(--navy)' }}>{featName}</td>
-                  <td className="font-mono">{stat.mean.toFixed(2)}</td>
-                  <td className="font-mono">{stat.std.toFixed(2)}</td>
-                  <td className="font-mono">{stat.min}</td>
-                  <td className="font-mono">{stat['25%']}</td>
-                  <td className="font-mono">{stat['50%']}</td>
-                  <td className="font-mono">{stat['75%']}</td>
-                  <td className="font-mono">{stat.max}</td>
+                  <td className="font-mono">{stat.mean !== undefined ? stat.mean.toFixed(2) : '-'}</td>
+                  <td className="font-mono">{stat.std !== undefined ? stat.std.toFixed(2) : '-'}</td>
+                  <td className="font-mono">{stat.min !== undefined ? stat.min : '-'}</td>
+                  <td className="font-mono">{stat.median !== undefined ? stat.median : '-'}</td>
+                  <td className="font-mono">{stat.max !== undefined ? stat.max : '-'}</td>
                 </tr>
               ))}
             </tbody>

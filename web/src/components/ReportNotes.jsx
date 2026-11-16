@@ -4,9 +4,9 @@ import { Copy, Check, Printer, FileText, Download } from 'lucide-react';
 export default function ReportNotes({ results }) {
   const [copiedSection, setCopiedSection] = useState(null);
 
-  const meta = results.meta;
-  const classBal = results.class_balance;
-  const bestModel = results.best_model;
+  const meta = results.meta || {};
+  const classBal = results.class_balance || {};
+  const bestModel = results.models?.find(m => m.name === results.best_model) || results.models?.[0] || {};
 
   const handleCopy = (id, text) => {
     navigator.clipboard.writeText(text);
