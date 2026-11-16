@@ -43,7 +43,7 @@ export default function App() {
             <div>
               <h1 className="brand-title">Patient Follow-up & 30-Day Readmission Prognosis Estimator</h1>
               <div className="brand-subtitle">
-                BE Artificial Intelligence & Data Science | Track #4 | Fr. Conceicao Rodrigues College of Engineering
+                BE Computer Engineering (Honours in AI/ML) | Track #4 | Fr. Conceicao Rodrigues College of Engineering
               </div>
             </div>
           </div>
@@ -123,7 +123,7 @@ export default function App() {
       <footer style={{ borderTop: '1px solid var(--border-light)', backgroundColor: '#FFFFFF', padding: '1.25rem 1.5rem', textAlign: 'center', fontSize: '0.775rem', color: 'var(--text-muted)' }}>
         <div style={{ maxWidth: '1360px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div>
-            Patient Follow-up & Prognosis Estimator &copy; 2026 | BE AI&DS Healthcare AI/ML Mini Project
+            Patient Follow-up & Prognosis Estimator &copy; 2026 | BE Computer Engineering Healthcare AI/ML Mini Project
           </div>
           <div style={{ display: 'flex', gap: '1.25rem' }}>
             <span>UCI Diabetes 130-US Hospitals</span>

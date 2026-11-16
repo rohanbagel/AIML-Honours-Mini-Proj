@@ -152,20 +152,20 @@ def create_report():
     sub_p = doc.add_paragraph()
     sub_p.paragraph_format.space_after = Pt(25)
     sub_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_sub = sub_p.add_run("A Transparent Multi-Factor Clinical Decision Support Application\nBE Artificial Intelligence & Data Science (Honours) | Track #4")
+    r_sub = sub_p.add_run("A Transparent Multi-Factor Clinical Decision Support Application\nBE Computer Engineering (Honours in AI/ML) | Track #4")
     r_sub.font.size = Pt(12)
     r_sub.font.color.rgb = TEAL_RGB
 
     inst_p = doc.add_paragraph()
     inst_p.paragraph_format.space_after = Pt(30)
     inst_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    r_inst = inst_p.add_run("Fr. Conceicao Rodrigues College of Engineering\nDepartment of Artificial Intelligence & Data Science\nUniversity of Mumbai, Academic Year 2026-2027")
+    r_inst = inst_p.add_run("Fr. Conceicao Rodrigues College of Engineering\nDepartment of Computer Engineering\nUniversity of Mumbai, Academic Year 2026-2027")
     r_inst.font.size = Pt(11)
     r_inst.font.color.rgb = DARK_RGB
 
     cert_box = doc.add_paragraph()
     cert_box.paragraph_format.space_after = Pt(20)
-    cert_run = cert_box.add_run("DEPARTMENTAL CERTIFICATE OF ORIGINALITY\n\nThis is to certify that the mini-project entitled 'Patient Follow-up & 30-Day Hospital Readmission Prognosis Estimator' is a bona fide record of independent research work successfully carried out by Rohan (Project Lead) in partial fulfillment of the requirements for the degree of Bachelor of Engineering in AI&DS.")
+    cert_run = cert_box.add_run("DEPARTMENTAL CERTIFICATE OF ORIGINALITY\n\nThis is to certify that the mini-project entitled 'Patient Follow-up & 30-Day Hospital Readmission Prognosis Estimator' is a bona fide record of independent research work successfully carried out by Rohan (Project Lead) in partial fulfillment of the requirements for the degree of Bachelor of Engineering in Computer Engineering.")
     cert_run.font.size = Pt(10)
     cert_run.italic = True
 
@@ -432,7 +432,7 @@ def create_report():
     # 28. Plagiarism Declaration
     add_custom_heading("28. Plagiarism Declaration & Originality Statement", level=1)
     add_p(
-        "We hereby declare that this academic mini-project entitled 'Patient Follow-up & 30-Day Hospital Readmission Prognosis Estimator' is our original work conducted as part of the curriculum requirements for the Bachelor of Engineering in Artificial Intelligence & Data Science at Fr. Conceicao Rodrigues College of Engineering. All dataset sources, mathematical algorithms, and software frameworks have been thoroughly cited and attributed.",
+        "We hereby declare that this academic mini-project entitled 'Patient Follow-up & 30-Day Hospital Readmission Prognosis Estimator' is our original work conducted as part of the curriculum requirements for the Bachelor of Engineering in Computer Engineering at Fr. Conceicao Rodrigues College of Engineering. All dataset sources, mathematical algorithms, and software frameworks have been thoroughly cited and attributed.",
         bold_prefix="Declaration of Academic Integrity: "
     )
     add_p(
@@ -443,7 +443,7 @@ def create_report():
     sig_p = doc.add_paragraph()
     sig_p.paragraph_format.space_before = Pt(25)
     sig_p.paragraph_format.space_after = Pt(4)
-    sig_run = sig_p.add_run("Student & Faculty Signatures:\n\n______________________          ______________________          ______________________\n(Rohan - Project Lead)            (Faculty Project Guide)          (Head of Department, AI&DS)")
+    sig_run = sig_p.add_run("Student & Faculty Signatures:\n\n______________________          ______________________          ______________________\n(Rohan - Project Lead)            (Faculty Project Guide)          (Head of Department, Computer Engineering)")
     sig_run.font.size = Pt(9.5)
     sig_run.font.color.rgb = DARK_RGB
 

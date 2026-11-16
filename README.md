@@ -1,6 +1,6 @@
 # Patient Follow-up & 30-Day Hospital Readmission Prognosis Estimator
 
-[![BE AI&DS Mini Project](https://img.shields.io/badge/Course-BE%20AI%26DS%20(Honours)-05668D.svg)](https://github.com)
+[![BE Computer Engineering Mini Project](https://img.shields.io/badge/Course-BE%20Computer%20Engineering%20(Honours)-05668D.svg)](https://github.com)
 [![Topic Alignment](https://img.shields.io/badge/Track-%234%20Patient%20Prognosis%20Estimator-028090.svg)](https://github.com)
 [![Scale](https://img.shields.io/badge/Cohort-69%2C990%20Patients%20%7C%20101k%20Encounters-00A896.svg)](https://archive.ics.uci.edu/dataset/296/diabetes+130-us+hospitals+for+years+1999-2008)
 [![Model Parity](https://img.shields.io/badge/Parity-Verified%20(%3C0.00004)-02C39A.svg)](https://github.com)
@@ -8,7 +8,7 @@
 
 An end-to-end, clinically grounded artificial intelligence application designed to predict acute 30-day hospital readmissions among diabetic inpatients under the **US Centers for Medicare & Medicaid Services (CMS) Hospital Readmissions Reduction Program (HRRP)**.
 
-Developed for the **Healthcare AI/ML Mini Project** (BE Artificial Intelligence & Data Science, Department of AI&DS, Fr. Conceicao Rodrigues College of Engineering, University of Mumbai).
+Developed for the **Healthcare AI/ML Mini Project** (BE Computer Engineering, Department of Computer Engineering, Fr. Conceicao Rodrigues College of Engineering, University of Mumbai).
 
 ---
 

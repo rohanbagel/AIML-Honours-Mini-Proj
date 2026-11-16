@@ -102,7 +102,7 @@ export default function Overview({ results, onNavigateTab }) {
                 <ShieldCheck size={20} color="var(--teal-primary)" />
                 Curriculum & Global Health Mapping
               </h2>
-              <p className="card-subtitle">BE AI&DS Academic Rubric Alignment</p>
+              <p className="card-subtitle">BE Computer Engineering Academic Rubric Alignment</p>
             </div>
             <span className="badge badge-mint">SDG 3 Target 3.4</span>
           </div>

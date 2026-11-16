@@ -4,7 +4,7 @@
 export const CLINICAL_KNOWLEDGE_BASE = `
 PROJECT & CLINICAL OVERVIEW:
 - Project Title: Patient Follow-up & 30-Day Hospital Readmission Prognosis Estimator
-- Academic Course: BE Artificial Intelligence & Data Science | Healthcare AI/ML Mini Project
+- Academic Course: BE Computer Engineering (Honours in AI/ML) | Healthcare AI/ML Mini Project
 - PDF Alignment: Track #4 ("Patient Follow-up / Prognosis Estimator"), Experiments 1, 2, 4, 8; Course Outcomes CO1-CO5
 - Target Problem: Acute unplanned 30-day hospital readmissions among diabetic inpatients under the US CMS Hospital Readmissions Reduction Program (HRRP).
 - Clinical Motivation: Unplanned readmissions cost the US healthcare system over $17 billion annually. They represent major disruptions in patient continuity of care, adverse drug events, and poor transition planning.

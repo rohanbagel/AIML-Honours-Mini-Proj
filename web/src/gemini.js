@@ -44,7 +44,7 @@ export async function askClinicalAssistant(prompt, history = []) {
   const systemInstruction = {
     parts: [
       {
-        text: `You are an expert Clinical Informatics & Machine Learning Specialist assisting with the "Patient Follow-up & 30-Day Hospital Readmission Prognosis Estimator" project (College: Fr. Conceicao Rodrigues College of Engineering, BE AI&DS).
+        text: `You are an expert Clinical Informatics & Machine Learning Specialist assisting with the "Patient Follow-up & 30-Day Hospital Readmission Prognosis Estimator" project (College: Fr. Conceicao Rodrigues College of Engineering, BE Computer Engineering).
         
 You have authoritative access to the empirical findings from the 101,766-encounter UCI 130-US Hospitals Inpatient Dataset analysis:
 ${CLINICAL_KNOWLEDGE_BASE}
