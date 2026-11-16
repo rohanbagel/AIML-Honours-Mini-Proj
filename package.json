@@ -1,0 +1,8 @@
+{
+  "name": "aiml-honours-mini-proj",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "npm --prefix web run build"
+  }
+}
