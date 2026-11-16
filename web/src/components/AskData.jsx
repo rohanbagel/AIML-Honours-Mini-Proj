@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Bot, Key, Send, Sparkles, User, AlertCircle, Trash2, CheckCircle2 } from 'lucide-react';
-import { askClinicalAssistant, getStoredApiKey, setStoredApiKey, clearStoredApiKey } from '../gemini.js';
+import { askClinicalAssistant, getStoredApiKey, setStoredApiKey, clearStoredApiKey, hasEnvApiKey } from '../gemini.js';
 
 export default function AskData() {
   const [apiKey, setApiKey] = useState(getStoredApiKey());
@@ -95,11 +95,13 @@ Select a quick question below or type your own query.`
             {apiKey ? (
               <>
                 <span className="badge badge-mint" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
-                  <CheckCircle2 size={12} /> Key Connected (Session)
+                  <CheckCircle2 size={12} /> {hasEnvApiKey() ? 'Key Connected (.env)' : 'Key Connected (Session)'}
                 </span>
-                <button className="btn btn-outline btn-sm" onClick={handleClearKey}>
-                  <Trash2 size={13} /> Disconnect
-                </button>
+                {!hasEnvApiKey() && (
+                  <button className="btn btn-outline btn-sm" onClick={handleClearKey}>
+                    <Trash2 size={13} /> Disconnect
+                  </button>
+                )}
               </>
             ) : (
               <button className="btn btn-primary btn-sm" onClick={() => setIsKeyModalOpen(true)}>

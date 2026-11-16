@@ -3,7 +3,16 @@ import { CLINICAL_KNOWLEDGE_BASE } from './knowledge.js';
 const API_KEY_SESSION_KEY = 'clinical_gemini_api_key';
 
 export function getStoredApiKey() {
+  const envKey = import.meta.env?.VITE_GEMINI_API_KEY;
+  if (envKey && envKey.trim()) {
+    return envKey.trim();
+  }
   return sessionStorage.getItem(API_KEY_SESSION_KEY) || '';
+}
+
+export function hasEnvApiKey() {
+  const envKey = import.meta.env?.VITE_GEMINI_API_KEY;
+  return Boolean(envKey && envKey.trim());
 }
 
 export function setStoredApiKey(key) {
