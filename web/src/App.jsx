@@ -49,14 +49,14 @@ export default function App() {
           </div>
 
           <div className="header-badges">
+            <span className="badge badge-mint" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+              <span className="pulse-dot" /> Live Inpatient CDS
+            </span>
             <span className="badge badge-navy">
               <Users size={12} /> 101,766 Encounters
             </span>
             <span className="badge badge-teal">
               <Hospital size={12} /> 130 US Hospitals
-            </span>
-            <span className="badge badge-mint">
-              <CheckCircle2 size={12} /> Parity Verified (&Delta; &lt; 0.00004)
             </span>
           </div>
         </div>

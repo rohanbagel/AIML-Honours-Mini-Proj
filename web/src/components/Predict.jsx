@@ -1,16 +1,54 @@
 import React, { useState, useMemo } from 'react';
 import { 
-  Activity, AlertCircle, ArrowDownRight, ArrowUpRight, CheckCircle2, 
-  ChevronRight, ClipboardCheck, Clock, FileSpreadsheet, HeartPulse, 
-  HelpCircle, RefreshCw, ShieldAlert, Sliders, Stethoscope, User, Users, Zap 
+  Activity, AlertCircle, ArrowDownRight, ArrowUpRight, Check, CheckCircle2, 
+  ChevronRight, ClipboardCheck, Clock, Copy, FileSpreadsheet, HeartPulse, 
+  HelpCircle, Printer, RefreshCw, ShieldAlert, Sliders, Sparkles, Stethoscope, 
+  User, Users, Zap 
 } from 'lucide-react';
 import { predictReadmission } from '../predict.js';
+
+// SVG Semi-Circular Speedometer Gauge
+function RiskSpeedometer({ percentage, color, label }) {
+  const radius = 68;
+  const strokeWidth = 14;
+  const normalizedValue = Math.min(100, Math.max(0, percentage));
+  const arcLength = Math.PI * radius; // ~213.6
+  const strokeDashoffset = arcLength - (normalizedValue / 100) * arcLength;
+
+  return (
+    <div className="gauge-container">
+      <svg className="gauge-svg" viewBox="0 0 180 98">
+        <path
+          className="gauge-bg"
+          d="M 22 88 A 68 68 0 0 1 158 88"
+        />
+        <path
+          className="gauge-fill"
+          d="M 22 88 A 68 68 0 0 1 158 88"
+          style={{
+            stroke: color,
+            strokeDasharray: arcLength,
+            strokeDashoffset: strokeDashoffset
+          }}
+        />
+      </svg>
+      <div style={{ marginTop: '-42px', textAlign: 'center' }}>
+        <div style={{ fontSize: '2.35rem', fontWeight: 800, color: color, lineHeight: 1 }}>
+          {percentage}%
+        </div>
+        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+          {label || '30-Day Readmission Risk'}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Predict({ results }) {
   const deployedModel = results.deployed_model;
   const samplePatients = deployedModel.sample_patients;
 
-  // Initial state defaults to Profile B (High-Risk) to immediately demonstrate the power of the simulator
+  // Initial state defaults to Profile B (High-Risk)
   const [formData, setFormData] = useState({
     time_in_hospital: 7,
     num_lab_procedures: 55,
@@ -43,30 +81,39 @@ export default function Predict({ results }) {
   const [whatIfInsulin, setWhatIfInsulin] = useState(false);
   const [whatIfStay, setWhatIfStay] = useState(false);
 
-  // Load a pre-defined patient persona
+  // Interactive Checklist State
+  const [checkedOrders, setCheckedOrders] = useState({});
+
+  // Toast Notification State
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 3200);
+  };
+
+  // Load persona
   const handleLoadPersona = (patient) => {
     const rawInputs = patient.values || patient.inputs || {};
     setFormData({
       ...rawInputs,
-      // Derived features
       total_prior_visits: (rawInputs.number_outpatient || 0) + (rawInputs.number_emergency || 0) + (rawInputs.number_inpatient || 0),
       has_prior_inpatient: (rawInputs.number_inpatient || 0) > 0 ? 1 : 0,
       has_prior_emergency: (rawInputs.number_emergency || 0) > 0 ? 1 : 0,
       a1c_tested: rawInputs.A1Cresult !== 'None' ? 1 : 0,
       high_comorbidity: (rawInputs.number_diagnoses || 0) >= 7 ? 1 : 0
     });
-    // Reset what-if toggles
     setWhatIfA1c(false);
     setWhatIfInsulin(false);
     setWhatIfStay(false);
+    setCheckedOrders({});
+    showToast(`Loaded ${patient.label.split(':')[1]?.trim() || 'Patient Persona'}`);
   };
 
-  // Handle manual input updates
+  // Manual input update
   const handleInputChange = (field, value) => {
     setFormData((prev) => {
       const updated = { ...prev, [field]: value };
-
-      // Update derived features
       if (['number_outpatient', 'number_emergency', 'number_inpatient'].includes(field)) {
         const inp = field === 'number_inpatient' ? parseFloat(value) : prev.number_inpatient;
         const emer = field === 'number_emergency' ? parseFloat(value) : prev.number_emergency;
@@ -85,12 +132,44 @@ export default function Predict({ results }) {
     });
   };
 
-  // Baseline prediction
+  // Apply full clinical care bundle
+  const handleApplyClinicalBundle = () => {
+    const allActive = whatIfA1c && whatIfInsulin && whatIfStay;
+    if (allActive) {
+      setWhatIfA1c(false);
+      setWhatIfInsulin(false);
+      setWhatIfStay(false);
+      showToast("Reset counterfactual interventions to baseline.");
+    } else {
+      setWhatIfA1c(true);
+      setWhatIfInsulin(true);
+      setWhatIfStay(true);
+      showToast("Applied Full Clinical Bundle (HbA1c Lab + Stable Insulin + Early Ambulatory Transition)");
+    }
+  };
+
+  // Toggle checklist item
+  const handleToggleChecklist = (idx) => {
+    setCheckedOrders(prev => ({
+      ...prev,
+      [idx]: !prev[idx]
+    }));
+  };
+
+  // Copy care orders to clipboard
+  const handleCopyOrders = () => {
+    const activePathway = (hasActiveInterventions ? counterfactualPrediction.carePathway : baselinePrediction.carePathway);
+    const text = activePathway.map((o, i) => `${i + 1}. [${o.priority}] ${o.action}\n   Details: ${o.detail}`).join('\n\n');
+    navigator.clipboard.writeText(`CLINICAL DISCHARGE TRANSITION ORDERS:\nPatient Risk: ${hasActiveInterventions ? counterfactualPrediction.percentage : baselinePrediction.percentage}% (${hasActiveInterventions ? counterfactualPrediction.riskLevel : baselinePrediction.riskLevel})\n\n${text}`);
+    showToast("Discharge orders copied to clipboard!");
+  };
+
+  // Baseline calculation
   const baselinePrediction = useMemo(() => {
     return predictReadmission(formData);
   }, [formData]);
 
-  // Counterfactual prediction with active interventions applied
+  // Counterfactual calculation
   const counterfactualData = useMemo(() => {
     const cf = { ...formData };
     if (whatIfA1c) {
@@ -113,6 +192,7 @@ export default function Predict({ results }) {
 
   const hasActiveInterventions = whatIfA1c || whatIfInsulin || whatIfStay;
   const riskDelta = counterfactualPrediction.probability - baselinePrediction.probability;
+  const absoluteDeltaPercent = Math.abs(riskDelta * 100).toFixed(1);
   const relativeReduction = baselinePrediction.probability > 0 
     ? ((Math.abs(riskDelta) / baselinePrediction.probability) * 100).toFixed(1) 
     : '0.0';
@@ -120,12 +200,12 @@ export default function Predict({ results }) {
   return (
     <div>
       {/* Persona Selection Header */}
-      <div className="card" style={{ padding: '1rem 1.25rem', marginBottom: '1.25rem' }}>
+      <div className="card" style={{ padding: '0.9rem 1.25rem', marginBottom: '1.25rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Users size={18} color="var(--navy)" />
             <span style={{ fontSize: '0.875rem', fontWeight: 700, color: 'var(--navy)' }}>
-              Pre-loaded Inpatient Profiles:
+              Pre-loaded Clinical Patient Profiles:
             </span>
           </div>
 
@@ -135,17 +215,17 @@ export default function Predict({ results }) {
                 key={idx}
                 className="btn btn-outline btn-sm"
                 onClick={() => handleLoadPersona(sp)}
-                style={{ fontSize: '0.75rem' }}
+                style={{ fontSize: '0.75rem', fontWeight: 600 }}
               >
-                <User size={13} />
-                <span>{sp.label.split(':')[1]?.split('(')[0] || `Profile ${idx + 1}`}</span>
+                <User size={13} color="var(--teal-primary)" />
+                <span>{sp.label.split(':')[1]?.split('(')[0]?.trim() || `Profile ${idx + 1}`}</span>
               </button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Main Grid: Clinical Controls (Left) vs Prognosis Gauge & What-If (Right) */}
+      {/* Main Grid: Clinical Controls (Left) vs Prognosis Speedometer & What-If (Right) */}
       <div className="grid-2">
         {/* Left Column: Clinical Parameters */}
         <div className="card">
@@ -356,60 +436,114 @@ export default function Predict({ results }) {
           </div>
         </div>
 
-        {/* Right Column: Prognosis Gauge, What-If Engine, & Care Pathway */}
+        {/* Right Column: Speedometer Gauge, What-If Engine, & Care Pathway */}
         <div>
-          {/* Prognosis Gauge Card */}
+          {/* Speedometer Gauge Card */}
           <div className="card risk-display-card">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
                 Estimated 30-Day Readmission Prognosis
               </span>
-              <span className="badge badge-navy">Scikit-Learn Calibrated</span>
-            </div>
-
-            <div className="risk-circle-wrap">
-              <div style={{ textAlign: 'center' }}>
-                <div 
-                  className="risk-percentage"
-                  style={{ color: hasActiveInterventions ? counterfactualPrediction.badgeColor : baselinePrediction.badgeColor }}
-                >
-                  {hasActiveInterventions ? counterfactualPrediction.percentage : baselinePrediction.percentage}%
-                </div>
-                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                  Readmission Probability
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <span 
-                className="risk-tag"
-                style={{ 
-                  backgroundColor: (hasActiveInterventions ? counterfactualPrediction.badgeColor : baselinePrediction.badgeColor) + '1A',
-                  color: hasActiveInterventions ? counterfactualPrediction.badgeColor : baselinePrediction.badgeColor,
-                  border: `1px solid ${hasActiveInterventions ? counterfactualPrediction.badgeColor : baselinePrediction.badgeColor}4D`
-                }}
-              >
-                {hasActiveInterventions ? counterfactualPrediction.riskLevel : baselinePrediction.riskLevel}
+              <span className="badge badge-navy">
+                <span className="pulse-dot" style={{ marginRight: '4px' }} /> Calibrated Model
               </span>
             </div>
 
-            {hasActiveInterventions && (
-              <div style={{ marginTop: '0.75rem', padding: '0.5rem', backgroundColor: 'rgba(2, 195, 154, 0.12)', borderRadius: 'var(--radius-sm)', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                <ArrowDownRight size={16} color="#007A5E" />
-                <span style={{ fontSize: '0.775rem', fontWeight: 700, color: '#007A5E' }}>
-                  Risk reduced by {relativeReduction}% ({baselinePrediction.percentage}% &rarr; {counterfactualPrediction.percentage}%)
-                </span>
+            {!hasActiveInterventions ? (
+              <>
+                <RiskSpeedometer
+                  percentage={baselinePrediction.percentage}
+                  color={baselinePrediction.badgeColor}
+                  label="Baseline 30-Day Readmission Risk"
+                />
+
+                <div style={{ marginTop: '0.5rem' }}>
+                  <span 
+                    className="risk-tag"
+                    style={{ 
+                      backgroundColor: baselinePrediction.badgeColor + '1A',
+                      color: baselinePrediction.badgeColor,
+                      border: `1px solid ${baselinePrediction.badgeColor}4D`
+                    }}
+                  >
+                    {baselinePrediction.riskLevel}
+                  </span>
+                </div>
+              </>
+            ) : (
+              /* Dual Comparison View When Interventions Active */
+              <div>
+                <div className="dual-gauge-grid">
+                  <div className="dual-gauge-card">
+                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                      Inpatient Baseline
+                    </div>
+                    <div style={{ fontSize: '1.85rem', fontWeight: 800, color: baselinePrediction.badgeColor, margin: '0.25rem 0' }}>
+                      {baselinePrediction.percentage}%
+                    </div>
+                    <span 
+                      style={{ 
+                        fontSize: '0.7rem', 
+                        padding: '0.15rem 0.5rem', 
+                        borderRadius: '9999px',
+                        backgroundColor: baselinePrediction.badgeColor + '18',
+                        color: baselinePrediction.badgeColor,
+                        fontWeight: 700
+                      }}
+                    >
+                      {baselinePrediction.riskLevel}
+                    </span>
+                  </div>
+
+                  <div className="dual-gauge-card active">
+                    <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#007A5E', textTransform: 'uppercase', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px' }}>
+                      <Sparkles size={12} color="#007A5E" /> With Interventions
+                    </div>
+                    <div style={{ fontSize: '1.85rem', fontWeight: 800, color: counterfactualPrediction.badgeColor, margin: '0.25rem 0' }}>
+                      {counterfactualPrediction.percentage}%
+                    </div>
+                    <span 
+                      style={{ 
+                        fontSize: '0.7rem', 
+                        padding: '0.15rem 0.5rem', 
+                        borderRadius: '9999px',
+                        backgroundColor: counterfactualPrediction.badgeColor + '18',
+                        color: counterfactualPrediction.badgeColor,
+                        fontWeight: 700
+                      }}
+                    >
+                      {counterfactualPrediction.riskLevel}
+                    </span>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '0.75rem', padding: '0.5rem 0.75rem', backgroundColor: 'rgba(2, 195, 154, 0.12)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', border: '1px solid rgba(2, 195, 154, 0.3)' }}>
+                  <ArrowDownRight size={16} color="#007A5E" />
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#007A5E' }}>
+                    Absolute Risk Reduction: -{absoluteDeltaPercent}% (Rel. Reduction: -{relativeReduction}%)
+                  </span>
+                </div>
               </div>
             )}
           </div>
 
           {/* Interactive What-If Counterfactual Box */}
           <div className="what-if-box">
-            <div className="what-if-header">
-              <Zap size={18} />
-              <span>Interactive "What-If" Counterfactual Engine</span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '0.65rem' }}>
+              <div className="what-if-header" style={{ margin: 0 }}>
+                <Zap size={18} />
+                <span>Interactive "What-If" Counterfactual Engine</span>
+              </div>
+              <button 
+                className="btn btn-outline btn-sm"
+                onClick={handleApplyClinicalBundle}
+                style={{ fontSize: '0.725rem', backgroundColor: '#FFFFFF', borderColor: '#DCE399' }}
+              >
+                <Sparkles size={12} color="var(--teal-primary)" />
+                <span>{whatIfA1c && whatIfInsulin && whatIfStay ? 'Reset Bundle' : '✨ Apply Full Care Bundle'}</span>
+              </button>
             </div>
+
             <p style={{ fontSize: '0.775rem', color: '#5C5400', marginBottom: '0.85rem', lineHeight: '1.4' }}>
               Simulate in real-time how actionable clinician interventions prior to physical discharge shift patient prognosis:
             </p>
@@ -456,34 +590,50 @@ export default function Predict({ results }) {
             </div>
           </div>
 
-          {/* Automated Post-Discharge Care Pathway */}
+          {/* Automated Post-Discharge Care Pathway (Interactive Checklist) */}
           <div className="card" style={{ marginTop: '1.25rem' }}>
             <div className="card-header">
               <div>
                 <h3 className="card-title">
                   <ClipboardCheck size={18} color="var(--navy)" />
-                  Automated Post-Discharge Care Pathway
+                  Automated Post-Discharge Care Orders
                 </h3>
-                <p className="card-subtitle">Personalized clinician orders based on calculated risk tier</p>
+                <p className="card-subtitle">Personalized clinician orders (Click to mark actioned)</p>
               </div>
-              <span className="badge badge-navy">Clinician Orders</span>
+              <div style={{ display: 'flex', gap: '0.4rem' }}>
+                <button className="btn btn-outline btn-sm" onClick={handleCopyOrders} title="Copy Orders">
+                  <Copy size={13} /> Copy
+                </button>
+                <button className="btn btn-outline btn-sm" onClick={() => window.print()} title="Print Orders">
+                  <Printer size={13} /> Print
+                </button>
+              </div>
             </div>
 
             <div className="pathway-list">
-              {(hasActiveInterventions ? counterfactualPrediction.carePathway : baselinePrediction.carePathway).map((order, idx) => (
-                <div 
-                  key={idx} 
-                  className={`pathway-item ${order.priority === 'Urgent' ? 'urgent' : order.priority === 'High' ? 'high' : 'standard'}`}
-                >
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
-                      <span className="pathway-priority">{order.priority}</span>
-                      <span className="pathway-action">{order.action}</span>
+              {(hasActiveInterventions ? counterfactualPrediction.carePathway : baselinePrediction.carePathway).map((order, idx) => {
+                const isChecked = Boolean(checkedOrders[idx]);
+                return (
+                  <div 
+                    key={idx} 
+                    className={`checklist-item ${isChecked ? 'checked' : ''}`}
+                    onClick={() => handleToggleChecklist(idx)}
+                  >
+                    <div className={`checklist-checkbox ${isChecked ? 'checked' : ''}`}>
+                      {isChecked && <Check size={12} strokeWidth={3} />}
                     </div>
-                    <div className="pathway-desc">{order.detail}</div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.2rem' }}>
+                        <span className={`pathway-priority ${order.priority.toLowerCase()}`}>{order.priority}</span>
+                        <span className="pathway-action" style={{ textDecoration: isChecked ? 'line-through' : 'none', opacity: isChecked ? 0.75 : 1 }}>
+                          {order.action}
+                        </span>
+                      </div>
+                      <div className="pathway-desc">{order.detail}</div>
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
@@ -548,6 +698,16 @@ export default function Predict({ results }) {
           </div>
         </div>
       </div>
+
+      {/* Floating Toast Notification */}
+      {toastMessage && (
+        <div className="toast-container">
+          <div className="toast">
+            <CheckCircle2 size={16} color="#02C39A" />
+            <span>{toastMessage}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

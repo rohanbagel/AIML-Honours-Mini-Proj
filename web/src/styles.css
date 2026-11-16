@@ -786,6 +786,154 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 /* Responsive adjustments */
+/* Pulse Dot */
+.pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--green-mint);
+  box-shadow: 0 0 0 0 rgba(2, 195, 154, 0.7);
+  animation: pulse-ring 2s infinite;
+  display: inline-block;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(2, 195, 154, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(2, 195, 154, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(2, 195, 154, 0); }
+}
+
+/* Semi-circular Speedometer SVG Gauge */
+.gauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem 0;
+}
+
+.gauge-svg {
+  width: 190px;
+  height: 110px;
+}
+
+.gauge-bg {
+  fill: none;
+  stroke: #E2E8F0;
+  stroke-width: 14;
+  stroke-linecap: round;
+}
+
+.gauge-fill {
+  fill: none;
+  stroke-width: 14;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.16, 1, 0.3, 1), stroke 0.4s ease;
+}
+
+/* Dual Comparison Box */
+.dual-gauge-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .dual-gauge-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dual-gauge-card {
+  padding: 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background-color: #FFFFFF;
+  text-align: center;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.dual-gauge-card.active {
+  border-color: var(--green-mint);
+  background: linear-gradient(180deg, #FFFFFF, rgba(2, 195, 154, 0.05));
+  box-shadow: 0 2px 8px rgba(2, 195, 154, 0.15);
+}
+
+/* Clinical Checklist */
+.checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  background-color: #FFFFFF;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.checklist-item:hover {
+  border-color: var(--teal-primary);
+  background-color: rgba(2, 128, 144, 0.02);
+}
+
+.checklist-item.checked {
+  background-color: rgba(2, 195, 154, 0.06);
+  border-color: rgba(2, 195, 154, 0.35);
+}
+
+.checklist-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 2px solid #CBD5E1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
+  transition: all 0.15s ease;
+}
+
+.checklist-checkbox.checked {
+  background-color: var(--green-mint);
+  border-color: var(--green-mint);
+  color: #FFFFFF;
+}
+
+/* Toast Notifications */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: #0F172A;
+  color: #FFFFFF;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.25);
+  animation: slideInUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
 @media (max-width: 768px) {
   .grid-2, .grid-3 {
     grid-template-columns: 1fr;

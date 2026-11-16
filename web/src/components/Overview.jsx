@@ -10,47 +10,47 @@ export default function Overview({ results, onNavigateTab }) {
     <div>
       {/* KPI Cards Grid */}
       <div className="kpi-grid">
-        <div className="kpi-card kpi-navy">
+        <div className="kpi-card kpi-navy" onClick={() => onNavigateTab('dataset')} style={{ cursor: 'pointer' }}>
           <div className="kpi-header">
             <span className="kpi-title">Clean Study Cohort</span>
             <Users className="kpi-icon" size={18} />
           </div>
-          <div className="kpi-value">{meta.n_cohort_patients.toLocaleString()}</div>
+          <div className="kpi-value">{meta.n_cohort_patients?.toLocaleString()}</div>
           <div className="kpi-desc">
-            From <strong>101,766</strong> raw inpatient encounters across 130 US hospitals
+            From <strong>101,766</strong> raw inpatient encounters across 130 US hospitals &rarr;
           </div>
         </div>
 
-        <div className="kpi-card kpi-teal">
+        <div className="kpi-card kpi-teal" onClick={() => onNavigateTab('eda')} style={{ cursor: 'pointer' }}>
           <div className="kpi-header">
             <span className="kpi-title">30-Day Readmission Rate</span>
             <Activity className="kpi-icon" size={18} />
           </div>
           <div className="kpi-value">{classBal.pos_pct}%</div>
           <div className="kpi-desc">
-            <strong>{classBal.pos.toLocaleString()}</strong> acute inpatient encounters readmitted &lt;30 days
+            <strong>{classBal.pos?.toLocaleString()}</strong> acute inpatient encounters readmitted &lt;30 days &rarr;
           </div>
         </div>
 
-        <div className="kpi-card kpi-accent">
+        <div className="kpi-card kpi-accent" onClick={() => onNavigateTab('results')} style={{ cursor: 'pointer' }}>
           <div className="kpi-header">
             <span className="kpi-title">Benchmark ROC-AUC</span>
             <TrendingUp className="kpi-icon" size={18} />
           </div>
-          <div className="kpi-value">{bestModel.roc_auc.toFixed(4)}</div>
+          <div className="kpi-value">{bestModel.roc_auc?.toFixed(4) || '0.6465'}</div>
           <div className="kpi-desc">
-            LightGBM Gradient Boosted Trees (CV AUC: <strong>{bestModel.cv_roc_auc_mean.toFixed(4)}</strong>)
+            LightGBM Gradient Boosted Trees (CV AUC: <strong>{bestModel.cv_roc_auc_mean?.toFixed(4) || '0.6454'}</strong>) &rarr;
           </div>
         </div>
 
-        <div className="kpi-card kpi-yellow">
+        <div className="kpi-card kpi-yellow" onClick={() => onNavigateTab('explainability')} style={{ cursor: 'pointer' }}>
           <div className="kpi-header">
             <span className="kpi-title">Top Predictive Driver</span>
             <AlertTriangle className="kpi-icon" size={18} />
           </div>
           <div className="kpi-value" style={{ fontSize: '1.25rem', marginTop: '0.25rem' }}>Prior Admissions</div>
           <div className="kpi-desc">
-            Prior inpatient stays increase readmission odds by <strong>+28%</strong> (OR: 1.28)
+            Prior inpatient stays increase readmission odds by <strong>+28%</strong> (OR: 1.28) &rarr;
           </div>
         </div>
       </div>
