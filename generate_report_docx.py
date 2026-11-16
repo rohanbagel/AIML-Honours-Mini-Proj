@@ -367,7 +367,7 @@ def create_report():
     # 20. Clinical AI Assistant Integration
     add_custom_heading("20. Grounded Clinical AI Assistant Integration", level=1)
     add_p(
-        "The application integrates Google AI Studio's Gemini 2.5 Flash via a browser-grounded REST interface. The clinical knowledge base (derived from the 101,766-encounter dataset) is injected into system prompts, enabling clinicians to inquire about epidemiological risk factors, SDOH limitations, and transitional care guidelines with full factual grounding. API keys are stored solely in ephemeral browser sessionStorage.",
+        "The application integrates Google AI Studio's Gemini Flash (targeting gemini-3.5-flash-lite with multi-model failover) via a browser-grounded REST interface. The clinical knowledge base (derived from the 101,766-encounter dataset) is injected into system prompts, enabling clinicians to inquire about epidemiological risk factors, SDOH limitations, and transitional care guidelines with full factual grounding. API keys are managed safely in local environment configurations.",
         bold_prefix="Clinical AI Integration: "
     )
 
