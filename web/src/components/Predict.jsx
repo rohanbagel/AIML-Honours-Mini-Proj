@@ -540,7 +540,7 @@ export default function Predict({ results }) {
                 style={{ fontSize: '0.725rem', backgroundColor: '#FFFFFF', borderColor: '#DCE399' }}
               >
                 <Sparkles size={12} color="var(--teal-primary)" />
-                <span>{whatIfA1c && whatIfInsulin && whatIfStay ? 'Reset Bundle' : '✨ Apply Full Care Bundle'}</span>
+                <span>{whatIfA1c && whatIfInsulin && whatIfStay ? 'Reset Bundle' : 'Apply Full Care Bundle'}</span>
               </button>
             </div>
 
