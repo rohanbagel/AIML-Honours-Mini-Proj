@@ -3,6 +3,9 @@
     "shadcn": {
       "command": "cmd.exe",
       "args": ["/c", "npx", "-y", "shadcn@latest", "mcp"]
+    },
+    "shoogle": {
+      "url": "https://mcp.shoogle.dev/mcp"
     }
   }
 }
