@@ -37,9 +37,9 @@ export default function Overview({ results, onNavigateTab }) {
 
         <div 
           className="kpi-card kpi-teal" 
-          onClick={() => onNavigateTab('eda')} 
+          onClick={() => onNavigateTab('dataset')} 
           style={{ cursor: 'pointer' }}
-          title="Click to view Clinical EDA"
+          title="Click to view Cohort & Prep"
         >
           <div className="kpi-header">
             <span className="kpi-title">30-Day Readmission Rate</span>
@@ -79,9 +79,9 @@ export default function Overview({ results, onNavigateTab }) {
 
         <div 
           className="kpi-card kpi-yellow" 
-          onClick={() => onNavigateTab('explainability')} 
+          onClick={() => onNavigateTab('predict')} 
           style={{ cursor: 'pointer' }}
-          title="Click to view Feature Attribution"
+          title="Click to launch Discharge Simulator"
         >
           <div className="kpi-header">
             <span className="kpi-title">Top Predictive Driver</span>
