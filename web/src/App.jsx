@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import results from './results.json';
 import { 
   Activity, BarChart3, BookOpen, Bot, CheckCircle2, Cpu, Database, 
-  FileText, HeartPulse, HelpCircle, Hospital, ShieldCheck, 
-  Sliders, Stethoscope, Users 
+  HeartPulse, HelpCircle, Hospital, Sliders, Stethoscope, Users 
 } from 'lucide-react';
 
 import Overview from './components/Overview.jsx';
@@ -11,8 +10,6 @@ import DatasetPrep from './components/DatasetPrep.jsx';
 import Results from './components/Results.jsx';
 import Predict from './components/Predict.jsx';
 import AskData from './components/AskData.jsx';
-import AboutLimitations from './components/AboutLimitations.jsx';
-import ReportNotes from './components/ReportNotes.jsx';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -22,9 +19,7 @@ export default function App() {
     { id: 'dataset', label: 'Cohort & Prep', icon: Database },
     { id: 'results', label: 'Benchmark Models', icon: BarChart3 },
     { id: 'predict', label: 'Discharge Simulator', icon: Sliders, highlight: true },
-    { id: 'ask', label: 'Ask Clinical AI', icon: Bot },
-    { id: 'limitations', label: 'Parity & Ethics', icon: ShieldCheck },
-    { id: 'report', label: 'Report Notes', icon: FileText }
+    { id: 'ask', label: 'Ask Clinical AI', icon: Bot }
   ];
 
   return (
@@ -109,8 +104,6 @@ export default function App() {
         {activeTab === 'results' && <Results results={results} />}
         {activeTab === 'predict' && <Predict results={results} />}
         {activeTab === 'ask' && <AskData />}
-        {activeTab === 'limitations' && <AboutLimitations results={results} />}
-        {activeTab === 'report' && <ReportNotes results={results} />}
       </main>
 
       {/* Footer */}
