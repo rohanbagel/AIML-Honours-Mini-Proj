@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { 
-  Award, CheckCircle2, FileBarChart, Layers, ShieldCheck, 
+  Award, CheckCircle2, FileBarChart, ShieldCheck, 
   Sliders, Target, Zap, ArrowRight, Activity 
 } from 'lucide-react';
 import { 
@@ -12,9 +12,6 @@ export default function Results({ results }) {
   const models = results.models || [];
   const bestModel = models.find(m => m.name === results.best_model) || models[0] || {};
   const deployedModel = models.find(m => m.name === 'Logistic Regression') || {};
-
-  // Interactive decision threshold slider state
-  const [threshold, setThreshold] = useState(0.50);
 
   // Prepare combined ROC data points
   const rocPoints = [];
@@ -35,20 +32,6 @@ export default function Results({ results }) {
       });
     }
   });
-
-  // Calculate dynamic simulated confusion matrix based on threshold shift
-  // Base numbers at 0.50: TN=8489, FP=4252, FN=570, TP=687 (Total Pos=1257, Neg=12741)
-  const totalPos = 1257;
-  const totalNeg = 12741;
-  
-  // Sensitivity shifts inversely with threshold; specificity shifts directly
-  const dynamicRecall = Math.min(0.95, Math.max(0.15, 0.5465 + (0.50 - threshold) * 0.95));
-  const dynamicSpecificity = Math.min(0.96, Math.max(0.20, 0.6663 + (threshold - 0.50) * 0.85));
-
-  const dynamicTP = Math.round(totalPos * dynamicRecall);
-  const dynamicFN = totalPos - dynamicTP;
-  const dynamicTN = Math.round(totalNeg * dynamicSpecificity);
-  const dynamicFP = totalNeg - dynamicTN;
 
   return (
     <div>
@@ -134,118 +117,46 @@ export default function Results({ results }) {
         </div>
       </div>
 
-      {/* Grid: Combined ROC Curves & Interactive Confusion Matrix */}
-      <div className="grid-2">
-        {/* ROC Curves Card */}
-        <div className="card">
-          <div className="card-header">
-            <div>
-              <h3 className="card-title">
-                <Target size={18} color="var(--teal-primary)" />
-                Comparative ROC Curves
-              </h3>
-              <p className="card-subtitle">True Positive Rate vs False Positive Rate across decision thresholds</p>
-            </div>
-            <span className="badge badge-navy">ROC Curves</span>
+      {/* Comparative ROC Curves Card */}
+      <div className="card">
+        <div className="card-header">
+          <div>
+            <h3 className="card-title">
+              <Target size={18} color="var(--teal-primary)" />
+              Comparative ROC Curves
+            </h3>
+            <p className="card-subtitle">True Positive Rate (Sensitivity) vs False Positive Rate (1 - Specificity) across decision thresholds</p>
           </div>
-
-          <div style={{ height: '320px', width: '100%' }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={rocPoints} margin={{ top: 10, right: 30, left: 10, bottom: 20 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
-                <XAxis 
-                  dataKey="fpr" 
-                  type="number" 
-                  domain={[0, 1]} 
-                  tick={{ fontSize: 11 }} 
-                  label={{ value: 'False Positive Rate (1 - Specificity)', position: 'insideBottom', offset: -10, fontSize: 11, fill: '#64748B' }} 
-                />
-                <YAxis 
-                  domain={[0, 1]} 
-                  tick={{ fontSize: 11 }} 
-                  label={{ value: 'True Positive Rate (Sensitivity)', angle: -90, position: 'insideLeft', fontSize: 11, fill: '#64748B' }} 
-                />
-                <Tooltip 
-                  formatter={(val, name) => [`${val}`, name]}
-                  contentStyle={{ backgroundColor: '#0F172A', color: '#FFFFFF', borderRadius: '8px', border: 'none', fontSize: '11px' }}
-                />
-                <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '12px' }} />
-                <Line type="monotone" dataKey="LightGBM" stroke="#05668D" strokeWidth={2.5} dot={false} name="LightGBM (0.6465)" />
-                <Line type="monotone" dataKey="LogisticRegression" stroke="#028090" strokeWidth={2} dot={false} name="LogReg (0.6415)" />
-                <Line type="monotone" dataKey="RandomForest" stroke="#A38C00" strokeWidth={1.5} dot={false} name="RandForest (0.6284)" />
-                <Line type="monotone" dataKey="diagonal" stroke="#CBD5E1" strokeDasharray="5 5" strokeWidth={1} dot={false} name="Random Chance (0.50)" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          <span className="badge badge-navy">ROC Curves</span>
         </div>
 
-        {/* Interactive Confusion Matrix Card with Threshold Slider */}
-        <div className="card">
-          <div className="card-header">
-            <div>
-              <h3 className="card-title">
-                <Layers size={18} color="var(--navy)" />
-                Interactive Confusion Matrix Explorer
-              </h3>
-              <p className="card-subtitle">Adjust decision threshold to observe clinical Sensitivity vs Specificity</p>
-            </div>
-            <span className="badge badge-mint">
-              Threshold: {threshold.toFixed(2)}
-            </span>
-          </div>
-
-          {/* Interactive Threshold Slider */}
-          <div style={{ backgroundColor: 'var(--bg-subtle)', padding: '0.85rem 1rem', borderRadius: 'var(--radius-sm)', marginBottom: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem', fontSize: '0.8rem', fontWeight: 600 }}>
-              <span style={{ color: 'var(--navy)' }}>Decision Threshold (&tau;)</span>
-              <span className="form-value-pill">{threshold.toFixed(2)}</span>
-            </div>
-            <input
-              type="range"
-              min="0.20"
-              max="0.80"
-              step="0.05"
-              value={threshold}
-              onChange={(e) => setThreshold(parseFloat(e.target.value))}
-            />
-            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.7rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-              <span>High Sensitivity (&tau; = 0.20)</span>
-              <span>Balanced (&tau; = 0.50)</span>
-              <span>High Specificity (&tau; = 0.80)</span>
-            </div>
-          </div>
-
-          {/* 2x2 Matrix Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
-            <div style={{ backgroundColor: 'rgba(2, 195, 154, 0.12)', border: '1px solid rgba(2, 195, 154, 0.3)', padding: '0.85rem', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#007A5E', textTransform: 'uppercase' }}>True Negatives (TN)</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--navy)', margin: '0.2rem 0' }}>{dynamicTN.toLocaleString()}</div>
-              <div style={{ fontSize: '0.725rem', color: 'var(--text-secondary)' }}>Correctly classified stable patients</div>
-            </div>
-
-            <div style={{ backgroundColor: 'rgba(240, 243, 189, 0.5)', border: '1px solid #DCE399', padding: '0.85rem', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#665900', textTransform: 'uppercase' }}>False Positives (FP)</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#665900', margin: '0.2rem 0' }}>{dynamicFP.toLocaleString()}</div>
-              <div style={{ fontSize: '0.725rem', color: 'var(--text-secondary)' }}>Flagged for transitional care</div>
-            </div>
-
-            <div style={{ backgroundColor: 'rgba(225, 29, 72, 0.1)', border: '1px solid rgba(225, 29, 72, 0.25)', padding: '0.85rem', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#E11D48', textTransform: 'uppercase' }}>False Negatives (FN)</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: '#E11D48', margin: '0.2rem 0' }}>{dynamicFN.toLocaleString()}</div>
-              <div style={{ fontSize: '0.725rem', color: 'var(--text-secondary)' }}>Acute readmissions missed</div>
-            </div>
-
-            <div style={{ backgroundColor: 'rgba(2, 128, 144, 0.15)', border: '1px solid rgba(2, 128, 144, 0.35)', padding: '0.85rem', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 700, color: 'var(--teal-primary)', textTransform: 'uppercase' }}>True Positives (TP)</div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--teal-primary)', margin: '0.2rem 0' }}>{dynamicTP.toLocaleString()}</div>
-              <div style={{ fontSize: '0.725rem', color: 'var(--text-secondary)' }}>Correctly identified readmissions</div>
-            </div>
-          </div>
-
-          <div style={{ marginTop: '0.85rem', display: 'flex', justifyContent: 'space-around', fontSize: '0.775rem', fontWeight: 600 }}>
-            <span>Sensitivity (Recall): <strong style={{ color: 'var(--teal-primary)' }}>{(dynamicRecall * 100).toFixed(1)}%</strong></span>
-            <span>Specificity: <strong style={{ color: 'var(--navy)' }}>{(dynamicSpecificity * 100).toFixed(1)}%</strong></span>
-          </div>
+        <div style={{ height: '360px', width: '100%' }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={rocPoints} margin={{ top: 10, right: 30, left: 10, bottom: 20 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#F1F5F9" />
+              <XAxis 
+                dataKey="fpr" 
+                type="number" 
+                domain={[0, 1]} 
+                tick={{ fontSize: 11 }} 
+                label={{ value: 'False Positive Rate (1 - Specificity)', position: 'insideBottom', offset: -10, fontSize: 11, fill: '#64748B' }} 
+              />
+              <YAxis 
+                domain={[0, 1]} 
+                tick={{ fontSize: 11 }} 
+                label={{ value: 'True Positive Rate (Sensitivity)', angle: -90, position: 'insideLeft', fontSize: 11, fill: '#64748B' }} 
+              />
+              <Tooltip 
+                formatter={(val, name) => [`${val}`, name]}
+                contentStyle={{ backgroundColor: '#0F172A', color: '#FFFFFF', borderRadius: '8px', border: 'none', fontSize: '11px' }}
+              />
+              <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '12px' }} />
+              <Line type="monotone" dataKey="LightGBM" stroke="#05668D" strokeWidth={2.5} dot={false} name="LightGBM (0.6465)" />
+              <Line type="monotone" dataKey="LogisticRegression" stroke="#028090" strokeWidth={2} dot={false} name="LogReg (0.6415)" />
+              <Line type="monotone" dataKey="RandomForest" stroke="#A38C00" strokeWidth={1.5} dot={false} name="RandForest (0.6284)" />
+              <Line type="monotone" dataKey="diagonal" stroke="#CBD5E1" strokeDasharray="5 5" strokeWidth={1} dot={false} name="Random Chance (0.50)" />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
       </div>
     </div>
